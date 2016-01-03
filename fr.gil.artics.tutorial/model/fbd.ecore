@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ecore:EPackage xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" name="fbd" nsURI="http://www.gil.fr/artics/models/fbd" nsPrefix="fr.gil.artics.models.fbd">
+  <eClassifiers xsi:type="ecore:EClass" name="AbstractFunctionBlockDiagramElement"
+      abstract="true"/>
+  <eClassifiers xsi:type="ecore:EClass" name="AbstractAnonymousElement" abstract="true">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="comment" lowerBound="1"
+        eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" defaultValueLiteral=""/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="FunctionBlockDiagramGraphicsPoint">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="x" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="y" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="AbstractFunctionBlockDiagramGraphicsRectangle"
+      abstract="true" eSuperTypes="#//FunctionBlockDiagramGraphicsPoint">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="width" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="height" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="AbstractElement" abstract="true" eSuperTypes="#//AbstractAnonymousElement">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" lowerBound="1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="AbstractConnectionPoint" abstract="true"
+      eSuperTypes="#//AbstractElement">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="type" lowerBound="1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="AbstractReadableConnectionPoint" abstract="true"
+      eSuperTypes="#//AbstractConnectionPoint">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="links" upperBound="-1"
+        eType="#//AbstractWritableConnectionPoint" eOpposite="#//AbstractWritableConnectionPoint/link"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="AbstractWritableConnectionPoint" abstract="true"
+      eSuperTypes="#//AbstractConnectionPoint">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="link" ordered="false" eType="#//AbstractReadableConnectionPoint"
+        eOpposite="#//AbstractReadableConnectionPoint/links"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="linkBendpoints" upperBound="-1"
+        eType="#//FunctionBlockDiagramGraphicsPoint"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="AbstractFunctionBlockDiagramInterfaceElement"
+      abstract="true" eSuperTypes="#//AbstractConnectionPoint #//AbstractFunctionBlockDiagramGraphicsRectangle #//AbstractFunctionBlockDiagramElement">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="initialValue" lowerBound="1"
+        eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="AbstractFunctionBlockDiagramBody" abstract="true"
+      eSuperTypes="#//AbstractFunctionBlockDiagramElement"/>
+  <eClassifiers xsi:type="ecore:EClass" name="AbstractFunctionBlockDiagramGraphicsPosition"
+      abstract="true">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="relativeX" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="relativeY" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="AbstractFunctionBlockDiagramBlockInterfaceElement"
+      abstract="true" eSuperTypes="#//AbstractConnectionPoint #//AbstractFunctionBlockDiagramGraphicsPosition"/>
+  <eClassifiers xsi:type="ecore:EClass" name="FunctionBlockDiagramBlockInput" eSuperTypes="#//AbstractWritableConnectionPoint #//AbstractFunctionBlockDiagramBlockInterfaceElement">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="parent" lowerBound="1"
+        eType="#//FunctionBlockDiagramBlock" eOpposite="#//FunctionBlockDiagramBlock/inputs"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="FunctionBlockDiagramBlockOutput" eSuperTypes="#//AbstractReadableConnectionPoint #//AbstractFunctionBlockDiagramBlockInterfaceElement">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="parent" lowerBound="1"
+        eType="#//FunctionBlockDiagramBlock" eOpposite="#//FunctionBlockDiagramBlock/outputs"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="FunctionBlockDiagramBlock" eSuperTypes="#//AbstractElement #//AbstractFunctionBlockDiagramGraphicsRectangle">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="inputs" lowerBound="1"
+        upperBound="-1" eType="#//FunctionBlockDiagramBlockInput" containment="true"
+        eOpposite="#//FunctionBlockDiagramBlockInput/parent"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="outputs" lowerBound="1"
+        upperBound="-1" eType="#//FunctionBlockDiagramBlockOutput" containment="true"
+        eOpposite="#//FunctionBlockDiagramBlockOutput/parent"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="body" unique="false" lowerBound="1"
+        eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" defaultValueLiteral=""/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="parent" lowerBound="1"
+        eType="#//FunctionBlockDiagramBody" eOpposite="#//FunctionBlockDiagramBody/blocks"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="FunctionBlockDiagramInput" eSuperTypes="#//AbstractReadableConnectionPoint #//AbstractFunctionBlockDiagramInterfaceElement">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="parent" lowerBound="1"
+        eType="#//FunctionBlockDiagram" eOpposite="#//FunctionBlockDiagram/inputs"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="FunctionBlockDiagramOutput" eSuperTypes="#//AbstractWritableConnectionPoint #//AbstractFunctionBlockDiagramInterfaceElement">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="parent" lowerBound="1"
+        eType="#//FunctionBlockDiagram" eOpposite="#//FunctionBlockDiagram/outputs"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="FunctionBlockDiagramComment" eSuperTypes="#//AbstractAnonymousElement">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="parent" lowerBound="1"
+        eType="#//FunctionBlockDiagramBody" eOpposite="#//FunctionBlockDiagramBody/comments"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="ExternalFunctionBlockDiagramBody" eSuperTypes="#//AbstractFunctionBlockDiagramBody">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="file" lowerBound="1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"
+        defaultValueLiteral=""/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="FunctionBlockDiagramBody" eSuperTypes="#//AbstractFunctionBlockDiagramBody">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="blocks" upperBound="-1"
+        eType="#//FunctionBlockDiagramBlock" derived="true" containment="true" eOpposite="#//FunctionBlockDiagramBlock/parent"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="comments" upperBound="-1"
+        eType="#//FunctionBlockDiagramComment" eOpposite="#//FunctionBlockDiagramComment/parent"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="FunctionBlockDiagram" eSuperTypes="#//AbstractElement #//FunctionBlockDiagramGraphicsPoint">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="inputs" lowerBound="1"
+        upperBound="-1" eType="#//FunctionBlockDiagramInput" containment="true" eOpposite="#//FunctionBlockDiagramInput/parent"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="outputs" lowerBound="1"
+        upperBound="-1" eType="#//FunctionBlockDiagramOutput" containment="true" eOpposite="#//FunctionBlockDiagramOutput/parent"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="body" lowerBound="1" eType="#//AbstractFunctionBlockDiagramBody"
+        containment="true"/>
+  </eClassifiers>
+</ecore:EPackage>
