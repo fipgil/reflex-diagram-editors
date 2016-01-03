@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+
+   <extension
+         point="org.eclipse.graphiti.ui.diagramTypes">
+      <diagramType
+            name="Function Block Diagram Type"
+            type="fbd"
+            id="fr.gil.artics.tutorial.graphiti.fbd.diagram-type">
+      </diagramType>
+   </extension>
+   <extension
+         point="org.eclipse.graphiti.ui.diagramTypeProviders">
+      <diagramTypeProvider
+            name="Function Block Diagram Type Provider"
+            class="fr.gil.artics.tutorial.graphiti.fbd.diagram.FunctionBlockDiagramTypeProvider"
+            id="fr.gil.artics.tutorial.graphiti.fbd.type-provider">
+         <diagramType
+               id="fr.gil.artics.tutorial.graphiti.fbd.diagram-type">
+         </diagramType>
+      </diagramTypeProvider>
+   </extension>
+   <extension
+         point="org.eclipse.ui.editors">
+      <editor
+            class="fr.gil.artics.tutorial.graphiti.fbd.editor.FunctionBlockDiagramEditor"
+            default="false"
+            id="fr.gil.artics.tutorial.graphiti.fbd.editor"
+            name="Function Block Diagram Editor">
+         <contentTypeBinding
+               contentTypeId="fr.gil.artics.tutorial.graphiti.fbd.content-type">
+         </contentTypeBinding>
+      </editor>
+   </extension>
+   <extension
+         point="org.eclipse.core.contenttype.contentTypes">
+      <content-type
+            base-type="org.eclipse.core.runtime.xml"
+            file-extensions="fbd"
+            id="fr.gil.artics.tutorial.graphiti.fbd.content-type"
+            name="Function Block Diagram Content Type"
+            priority="normal">
+      </content-type>
+   </extension>
+
+</plugin>
