@@ -25,8 +25,10 @@
          point="org.eclipse.ui.editors">
       <editor
             class="fr.gil.artics.tutorial.graphiti.fbd.editor.FunctionBlockDiagramEditor"
-            default="false"
+            contributorClass="org.eclipse.graphiti.ui.editor.DiagramEditorActionBarContributor"
+            default="true"
             id="fr.gil.artics.tutorial.graphiti.fbd.editor"
+            matchingStrategy="org.eclipse.graphiti.ui.editor.DiagramEditorMatchingStrategy"
             name="Function Block Diagram Editor">
          <contentTypeBinding
                contentTypeId="fr.gil.artics.tutorial.graphiti.fbd.content-type">
