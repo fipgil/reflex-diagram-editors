@@ -6,6 +6,7 @@ import org.eclipse.graphiti.features.ICreateConnectionFeature;
 import org.eclipse.graphiti.features.ICreateFeature;
 import org.eclipse.graphiti.features.IDeleteFeature;
 import org.eclipse.graphiti.features.ILayoutFeature;
+import org.eclipse.graphiti.features.IMoveAnchorFeature;
 import org.eclipse.graphiti.features.IMoveShapeFeature;
 import org.eclipse.graphiti.features.IReconnectionFeature;
 import org.eclipse.graphiti.features.IRemoveFeature;
@@ -14,6 +15,7 @@ import org.eclipse.graphiti.features.context.IAddConnectionContext;
 import org.eclipse.graphiti.features.context.IAddContext;
 import org.eclipse.graphiti.features.context.IDeleteContext;
 import org.eclipse.graphiti.features.context.ILayoutContext;
+import org.eclipse.graphiti.features.context.IMoveAnchorContext;
 import org.eclipse.graphiti.features.context.IMoveShapeContext;
 import org.eclipse.graphiti.features.context.IReconnectionContext;
 import org.eclipse.graphiti.features.context.IRemoveContext;
@@ -42,6 +44,7 @@ import fr.gil.artics.tutorial.graphiti.fbd.features.CreateFunctionBlockDiagramIn
 import fr.gil.artics.tutorial.graphiti.fbd.features.DeleteFunctionBlockDiagramBlockFeature;
 import fr.gil.artics.tutorial.graphiti.fbd.features.DeleteFunctionBlockDiagramConnectionFeature;
 import fr.gil.artics.tutorial.graphiti.fbd.features.DeleteFunctionBlockDiagramInputFeature;
+import fr.gil.artics.tutorial.graphiti.fbd.features.DisabledMoveAnchorFeature;
 import fr.gil.artics.tutorial.graphiti.fbd.features.DisabledMoveShapeFeature;
 import fr.gil.artics.tutorial.graphiti.fbd.features.LayoutFunctionBlockDiagramBlockFeature;
 import fr.gil.artics.tutorial.graphiti.fbd.features.LayoutFunctionBlockDiagramInterfaceElementFeature;
@@ -190,4 +193,9 @@ public class FunctionBlockDiagramFeatureProvider extends DefaultFeatureProvider 
 		}
 		return super.getReconnectionFeature(context);
 	}
+
+	public IMoveAnchorFeature getMoveAnchorFeature(IMoveAnchorContext context) {
+		return new DisabledMoveAnchorFeature(this);
+	}
+
 }
