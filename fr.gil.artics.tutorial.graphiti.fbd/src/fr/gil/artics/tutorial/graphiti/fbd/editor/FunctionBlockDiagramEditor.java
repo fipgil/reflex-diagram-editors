@@ -116,7 +116,6 @@ public class FunctionBlockDiagramEditor extends DiagramEditor {
 				fileEditorInput.getFile().getFullPath().toString(), true);
 		final URI diagramFile = DomainModel.getInstance().getTempURIFile(
 				diagramName, modelFile);
-
 		final Diagram diagram = Graphiti.getPeCreateService().createDiagram(
 				FDB_DIAGRAM_TYPE_ID, diagramName, true);
 		FileService.createEmfFileForDiagram(diagramFile, diagram);
@@ -135,10 +134,15 @@ public class FunctionBlockDiagramEditor extends DiagramEditor {
 		if (input instanceof IFileEditorInput) {
 			fileEditorInput = (IFileEditorInput) input;
 			IDiagramEditorInput diagramEditorInput = init(fileEditorInput);
+			TempDiagramFilesManager.addDiagramFile(diagramEditorInput.getUri());
 			super.init(site, (IEditorInput) diagramEditorInput);
 			loadDiagram(fileEditorInput);
 		}
 		else {
+			if (input instanceof IDiagramEditorInput) {
+				TempDiagramFilesManager.addDiagramFile(
+						((IDiagramEditorInput)input).getUri());
+			}
 			super.init(site, input);
 		}
 	}
@@ -148,6 +152,7 @@ public class FunctionBlockDiagramEditor extends DiagramEditor {
 		if (input instanceof IFileEditorInput) {
 			fileEditorInput = (IFileEditorInput) input;
 			IDiagramEditorInput diagramEditorInput = init(fileEditorInput);
+			TempDiagramFilesManager.addDiagramFile(diagramEditorInput.getUri());
 			super.setInput((IEditorInput) diagramEditorInput);
 			loadDiagram(fileEditorInput);
 		}
@@ -160,6 +165,18 @@ public class FunctionBlockDiagramEditor extends DiagramEditor {
 		if (fileEditorInput != null) {
 			return fileEditorInput.getToolTipText();
 		}
+		else {
+			for (Resource resource : getDiagramBehavior().getEditingDomain(
+					).getResourceSet().getResources()) {
+				System.out.println(resource.getURI().lastSegment());
+			}
+		}
 		return super.getTitleToolTip();
 	}
+	@Override
+	public void dispose() {
+		URI uri = getDiagramEditorInput().getUri();
+		super.dispose();
+		TempDiagramFilesManager.disposeDiagramFile(uri);
+	}	
 }
