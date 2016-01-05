@@ -103,7 +103,7 @@ public class AddFunctionBlockDiagramInputFeature extends AbstractAddShapeFeature
 		boxAnchor.setRelativeHeight(0.50); // use golden section
 
 		// anchor references visible rectangle instead of invisible rectangle
-		boxAnchor.setReferencedGraphicsAlgorithm(roundedRectangle);
+		boxAnchor.setReferencedGraphicsAlgorithm(invisibleRectangle);
 
 		// assign a rectangle graphics algorithm for the box relative anchor
 		// note, that the rectangle is inside the border of the rectangle shape
@@ -114,7 +114,7 @@ public class AddFunctionBlockDiagramInputFeature extends AbstractAddShapeFeature
 
 		// anchor is located on the right border of the visible rectangle
 		// and touches the border of the invisible rectangle
-		gaService.setLocationAndSize(rectangle, -ANCHOR_SIZE / 2, -ANCHOR_SIZE / 2, ANCHOR_SIZE, ANCHOR_SIZE);
+		gaService.setLocationAndSize(rectangle, -ANCHOR_SIZE, -ANCHOR_SIZE / 2, ANCHOR_SIZE, ANCHOR_SIZE);
 
 		// create link and wire it
 		link(containerShape, input);
