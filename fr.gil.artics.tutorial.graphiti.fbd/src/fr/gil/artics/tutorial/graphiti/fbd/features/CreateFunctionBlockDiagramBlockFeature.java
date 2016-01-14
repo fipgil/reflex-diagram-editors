@@ -8,7 +8,6 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.graphiti.features.IFeatureProvider;
 import org.eclipse.graphiti.features.context.ICreateContext;
-import org.eclipse.graphiti.features.context.impl.CreateContext;
 import org.eclipse.graphiti.features.impl.AbstractCreateFeature;
 import org.eclipse.graphiti.mm.pictograms.Diagram;
 import org.eclipse.graphiti.mm.pictograms.PictogramElement;
@@ -19,8 +18,10 @@ import org.eclipse.ui.dialogs.ResourceListSelectionDialog;
 import fr.gil.artics.tutorial.fbd.FunctionBlockDiagram;
 import fr.gil.artics.tutorial.fbd.FunctionBlockDiagramBlock;
 import fr.gil.artics.tutorial.fbd.FunctionBlockDiagramBlockInput;
+import fr.gil.artics.tutorial.fbd.FunctionBlockDiagramBlockOutput;
 import fr.gil.artics.tutorial.fbd.FunctionBlockDiagramBody;
 import fr.gil.artics.tutorial.fbd.FunctionBlockDiagramInput;
+import fr.gil.artics.tutorial.fbd.FunctionBlockDiagramOutput;
 import fr.gil.artics.tutorial.fbd.impl.FunctionBlockDiagramFactoryImpl;
 import fr.gil.artics.tutorial.graphiti.fbd.diagram.DomainModel;
 
@@ -88,26 +89,25 @@ public class CreateFunctionBlockDiagramBlockFeature extends AbstractCreateFeatur
 		FunctionBlockDiagramBody body = (FunctionBlockDiagramBody) diagram.getBody();
 		body.getBlocks().add(block);
 
-		// do the add
-		PictogramElement element = addGraphicalRepresentation(context, block);
 
 		// create Inputs
-		int index = 0;
 		for (FunctionBlockDiagramInput input : fbd.getInputs()) {
 			FunctionBlockDiagramBlockInput blockInput = FunctionBlockDiagramFactoryImpl.eINSTANCE
 					.createFunctionBlockDiagramBlockInput();
 			blockInput.setName(input.getName());
 			block.getInputs().add(blockInput);
-			CreateContext createContext = new CreateContext();
-			createContext.setX(context.getX());
-			// TODO change block input position
-			createContext.setY(context.getY() + 30 + 40 * index);
-			createContext.setWidth(context.getTargetContainer().getGraphicsAlgorithm().getWidth());
-			createContext.setHeight(20);
-			createContext.setTargetContainer(context.getTargetContainer());
-			addGraphicalRepresentation(createContext, blockInput);
-			index = index + 1;
 		}
+
+		// create Outputs
+		for (FunctionBlockDiagramOutput output : fbd.getOutputs()) {
+			FunctionBlockDiagramBlockOutput blockOutput = FunctionBlockDiagramFactoryImpl.eINSTANCE
+					.createFunctionBlockDiagramBlockOutput();
+			blockOutput.setName(output.getName());
+			block.getOutputs().add(blockOutput);
+		}
+
+		// do the add
+		PictogramElement element = addGraphicalRepresentation(context, block);
 
 		// call the layout feature
 		layoutPictogramElement(element);

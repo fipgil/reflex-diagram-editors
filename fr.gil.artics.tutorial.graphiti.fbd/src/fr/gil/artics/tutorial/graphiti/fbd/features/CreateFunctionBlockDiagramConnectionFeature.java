@@ -24,48 +24,27 @@ public class CreateFunctionBlockDiagramConnectionFeature extends AbstractCreateC
 
 	@Override
 	public boolean canStartConnection(ICreateConnectionContext context) {
-		PictogramElement sourcePictogramElement = context.getSourcePictogramElement();
 		Anchor sourceAnchor = context.getSourceAnchor();
-		if (sourceAnchor != null) {
-			sourcePictogramElement = sourceAnchor.getParent();
-		}
-		return getBusinessObjectForPictogramElement(sourcePictogramElement) instanceof AbstractReadableConnectionPoint;
+		return getBusinessObjectForPictogramElement(sourceAnchor) instanceof AbstractReadableConnectionPoint;
 	}
 
 	@Override
 	public boolean canCreate(ICreateConnectionContext context) {
-		PictogramElement sourcePictogramElement = context.getSourcePictogramElement();
-		PictogramElement targetPictogramElement = context.getTargetPictogramElement();
-		Anchor targetAnchor = context.getTargetAnchor();
-		if (targetAnchor != null) {
-			targetPictogramElement = targetAnchor.getParent();
-		}
 		Anchor sourceAnchor = context.getSourceAnchor();
-		if (sourceAnchor != null) {
-			sourcePictogramElement = sourceAnchor.getParent();
-		}
-
-		return getBusinessObjectForPictogramElement(sourcePictogramElement)
+		Anchor targetAnchor = context.getTargetAnchor();
+		return getBusinessObjectForPictogramElement(sourceAnchor)
 									instanceof AbstractReadableConnectionPoint 
-			&& getBusinessObjectForPictogramElement(targetPictogramElement)
+			&& getBusinessObjectForPictogramElement(targetAnchor)
 									instanceof AbstractWritableConnectionPoint;
 	}
 
 	@Override
 	public Connection create(ICreateConnectionContext context) {
-		PictogramElement sourcePictogramElement = context.getSourcePictogramElement();
-		PictogramElement targetPictogramElement = context.getTargetPictogramElement();
-		Anchor targetAnchor = context.getTargetAnchor();
-		if (targetAnchor != null) {
-			targetPictogramElement = targetAnchor.getParent();
-		}
 		Anchor sourceAnchor = context.getSourceAnchor();
-		if (sourceAnchor != null) {
-			sourcePictogramElement = sourceAnchor.getParent();
-		}
+		Anchor targetAnchor = context.getTargetAnchor();
 
 		AbstractWritableConnectionPoint target = (AbstractWritableConnectionPoint)
-				getBusinessObjectForPictogramElement(targetPictogramElement);
+				getBusinessObjectForPictogramElement(targetAnchor);
 		AbstractReadableConnectionPoint source = (AbstractReadableConnectionPoint) target.getLink();
 		if (source != null) {
 			for (PictogramElement pe : getFeatureProvider().getAllPictogramElementsForBusinessObject(target)) {
@@ -81,7 +60,7 @@ public class CreateFunctionBlockDiagramConnectionFeature extends AbstractCreateC
 		}
 		
 		source = (AbstractReadableConnectionPoint)
-		getBusinessObjectForPictogramElement(sourcePictogramElement);
+		getBusinessObjectForPictogramElement(sourceAnchor);
 		target.setLink(source);
 		
 		Connection newConnection = null;
