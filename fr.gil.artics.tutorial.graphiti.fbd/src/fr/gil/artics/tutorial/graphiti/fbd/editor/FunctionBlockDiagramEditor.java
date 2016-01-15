@@ -1,14 +1,24 @@
 package fr.gil.artics.tutorial.graphiti.fbd.editor;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.emf.common.command.CommandStack;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.common.util.WrappedException;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
+import org.eclipse.emf.transaction.RecordingCommand;
+import org.eclipse.emf.transaction.TransactionalEditingDomain;
+import org.eclipse.graphiti.dt.IDiagramTypeProvider;
 import org.eclipse.graphiti.examples.common.FileService;
+import org.eclipse.graphiti.features.IFeatureProvider;
 import org.eclipse.graphiti.features.context.impl.AddContext;
 import org.eclipse.graphiti.features.context.impl.CreateContext;
 import org.eclipse.graphiti.features.context.impl.LayoutContext;
+import org.eclipse.graphiti.mm.algorithms.styles.Point;
+import org.eclipse.graphiti.mm.pictograms.BoxRelativeAnchor;
+import org.eclipse.graphiti.mm.pictograms.Connection;
 import org.eclipse.graphiti.mm.pictograms.Diagram;
+import org.eclipse.graphiti.mm.pictograms.FreeFormConnection;
 import org.eclipse.graphiti.mm.pictograms.PictogramElement;
 import org.eclipse.graphiti.services.Graphiti;
 import org.eclipse.graphiti.ui.editor.DiagramEditor;
@@ -21,11 +31,15 @@ import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.PartInitException;
 
 import fr.gil.artics.tutorial.fbd.AbstractFunctionBlockDiagramBody;
+import fr.gil.artics.tutorial.fbd.AbstractWritableConnectionPoint;
 import fr.gil.artics.tutorial.fbd.FunctionBlockDiagram;
+import fr.gil.artics.tutorial.fbd.FunctionBlockDiagramBendpoint;
 import fr.gil.artics.tutorial.fbd.FunctionBlockDiagramBlock;
 import fr.gil.artics.tutorial.fbd.FunctionBlockDiagramBlockInput;
 import fr.gil.artics.tutorial.fbd.FunctionBlockDiagramBody;
 import fr.gil.artics.tutorial.fbd.FunctionBlockDiagramInput;
+import fr.gil.artics.tutorial.fbd.FunctionBlockDiagramOutput;
+import fr.gil.artics.tutorial.fbd.impl.FunctionBlockDiagramFactoryImpl;
 import fr.gil.artics.tutorial.graphiti.fbd.diagram.DomainModel;
 
 public class FunctionBlockDiagramEditor extends DiagramEditor {
@@ -44,24 +58,27 @@ public class FunctionBlockDiagramEditor extends DiagramEditor {
 	private void loadDiagram(IFileEditorInput fileEditorInput) {
 		final URI modelFile = URI.createPlatformResourceURI(
 				fileEditorInput.getFile().getFullPath().toString(), true);
+		final String name = fileEditorInput.getFile().getLocation().
+				removeFileExtension().lastSegment();
 		Resource model;
+
+		TransactionalEditingDomain editingDomain =
+				getDiagramBehavior().getEditingDomain();
 		try {
 			// Load the resource through the editing domain.
-			model = getDiagramBehavior().getEditingDomain().getResourceSet(
-					).getResource(modelFile, true);
+			model = editingDomain.getResourceSet().getResource(modelFile, true);
 		} catch (WrappedException e) {
 			// FIXME
 			// The content of the model file was invalid. => reset it.
-			model = getDiagramBehavior().getEditingDomain().getResourceSet(
-					).createResource(modelFile);
+			model = editingDomain.getResourceSet().createResource(modelFile);
 		}
+		
 		final Diagram diagram = getDiagramTypeProvider().getDiagram();
 		for (final EObject object : model.getContents()) {
 			// FIXME check that there is only one FunctionBlockDiagram object
 			if (object instanceof FunctionBlockDiagram) {
 				FunctionBlockDiagram fbd = (FunctionBlockDiagram) object;
-				// TODO should also create UI for outputs block calls & 
-				// connnections.
+				
 				for (FunctionBlockDiagramInput input : fbd.getInputs()) {
 			        CreateContext createContext = new CreateContext();
 			        createContext.setX(input.getX());
@@ -85,21 +102,42 @@ public class FunctionBlockDiagramEditor extends DiagramEditor {
 						PictogramElement element = getDiagramTypeProvider(
 							).getFeatureProvider().addIfPossible(
 								new AddContext(createContext, block));
-						for (FunctionBlockDiagramBlockInput input : block.getInputs()) {
-					        createContext = new CreateContext();
-					        createContext.setX(input.getRelativeX());
-					        createContext.setY(input.getRelativeY());
-					        createContext.setTargetContainer(diagram);
-					        
-							getDiagramTypeProvider().getFeatureProvider().addIfPossible(
-									new AddContext(createContext, input));
-						}
-						LayoutContext layoutContext = new LayoutContext(element);
-						getDiagramTypeProvider().getFeatureProvider().layoutIfPossible(layoutContext);
 
+						LayoutContext layoutContext =
+								new LayoutContext(element);
+						getDiagramTypeProvider().getFeatureProvider().
+							layoutIfPossible(layoutContext);
 					}
 				}
-				System.out.println("PGI +"+body);
+				for (FunctionBlockDiagramOutput output : fbd.getOutputs()) {
+			        CreateContext createContext = new CreateContext();
+			        createContext.setX(output.getX());
+			        createContext.setY(output.getY());
+			        createContext.setTargetContainer(diagram);
+			        
+					getDiagramTypeProvider().getFeatureProvider().addIfPossible(
+							new AddContext(createContext, output));
+				}
+				final CommandStack commandStack =
+						editingDomain.getCommandStack();
+				commandStack.execute(new RecordingCommand(editingDomain) {
+
+					@Override
+					protected void doExecute() {
+						boolean setNameRequired = false;
+						if (fbd.getName() == null) {
+							setNameRequired = true;
+						}
+						else if (fbd.getName().length() == 0){
+							setNameRequired = true;							
+						}
+						if (setNameRequired) {
+							fbd.setName(name);
+						}
+						getDiagramTypeProvider().getFeatureProvider().link(
+								diagram, fbd);
+					}
+				});
 			}
 		}
 		// FIXME needed to reset dirty bit at load time
@@ -160,23 +198,88 @@ public class FunctionBlockDiagramEditor extends DiagramEditor {
 			super.setInput(input);
 		}
 	}
+
 	@Override
 	public String getTitleToolTip() {
 		if (fileEditorInput != null) {
 			return fileEditorInput.getToolTipText();
 		}
-		else {
-			for (Resource resource : getDiagramBehavior().getEditingDomain(
-					).getResourceSet().getResources()) {
-				System.out.println(resource.getURI().lastSegment());
-			}
-		}
 		return super.getTitleToolTip();
 	}
+
 	@Override
 	public void dispose() {
 		URI uri = getDiagramEditorInput().getUri();
 		super.dispose();
 		TempDiagramFilesManager.disposeDiagramFile(uri);
-	}	
+	}
+
+	private void copyBendpoints (final FreeFormConnection source,
+		final AbstractWritableConnectionPoint target) {
+		TransactionalEditingDomain editingDomain =
+				getDiagramBehavior().getEditingDomain();
+		final CommandStack commandStack =
+				editingDomain.getCommandStack();
+		commandStack.execute(new RecordingCommand(editingDomain) {
+
+			@Override
+			protected void doExecute() {
+				target.getLinkBendpoints().clear();
+				for (Point sourcePoint : source.getBendpoints()) {
+					FunctionBlockDiagramBendpoint targetPoint =
+							FunctionBlockDiagramFactoryImpl.eINSTANCE.
+							createFunctionBlockDiagramBendpoint();
+					
+					targetPoint.setX(sourcePoint.getX());
+					targetPoint.setY(sourcePoint.getY());
+					target.getLinkBendpoints().add(targetPoint);
+				}
+			}
+		});
+	}
+
+	private void addOutputBendPoints (IFeatureProvider featureProvider,
+			AbstractWritableConnectionPoint output) {
+		for (PictogramElement pictogramElement : featureProvider.
+				getAllPictogramElementsForBusinessObject(output)) {
+			if (pictogramElement instanceof BoxRelativeAnchor) {
+				BoxRelativeAnchor anchor =
+						(BoxRelativeAnchor) pictogramElement;
+				for (Connection connection :
+					anchor.getIncomingConnections()) {
+					if (connection instanceof FreeFormConnection) {
+						copyBendpoints((FreeFormConnection) connection, output);
+						return;
+					}
+				}
+			}
+		}		
+	}
+
+	@Override
+	public void doSave(IProgressMonitor monitor) {
+		IDiagramTypeProvider diagramTypeProvider = getDiagramTypeProvider();
+		IFeatureProvider featureProvider =
+			diagramTypeProvider.getFeatureProvider();
+		Diagram diagram = diagramTypeProvider.getDiagram();
+		Object object =
+			featureProvider.getBusinessObjectForPictogramElement(diagram);
+		if (object instanceof FunctionBlockDiagram) {
+			FunctionBlockDiagram fbd = (FunctionBlockDiagram) object;
+			for (FunctionBlockDiagramOutput output : fbd.getOutputs()) {
+				addOutputBendPoints (featureProvider, output);
+			}
+			AbstractFunctionBlockDiagramBody body = fbd.getBody();
+			if (body instanceof FunctionBlockDiagramBody) {
+				for (FunctionBlockDiagramBlock block :
+					((FunctionBlockDiagramBody) body).getBlocks()) {
+					for (FunctionBlockDiagramBlockInput input :
+						block.getInputs()) {
+						addOutputBendPoints (featureProvider, input);						
+					}
+				}				
+			}
+		}
+		super.doSave(monitor);
+	}
 }

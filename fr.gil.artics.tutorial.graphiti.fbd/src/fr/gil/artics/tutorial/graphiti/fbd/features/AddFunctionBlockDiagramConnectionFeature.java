@@ -8,13 +8,16 @@ import org.eclipse.graphiti.features.impl.AbstractAddFeature;
 import org.eclipse.graphiti.mm.GraphicsAlgorithmContainer;
 import org.eclipse.graphiti.mm.algorithms.Polygon;
 import org.eclipse.graphiti.mm.algorithms.Polyline;
-import org.eclipse.graphiti.mm.pictograms.Connection;
 import org.eclipse.graphiti.mm.pictograms.ConnectionDecorator;
+import org.eclipse.graphiti.mm.pictograms.FreeFormConnection;
 import org.eclipse.graphiti.mm.pictograms.PictogramElement;
 import org.eclipse.graphiti.services.Graphiti;
 import org.eclipse.graphiti.services.IGaService;
 import org.eclipse.graphiti.services.IPeCreateService;
 import org.eclipse.graphiti.util.IColorConstant;
+
+import fr.gil.artics.tutorial.fbd.AbstractWritableConnectionPoint;
+import fr.gil.artics.tutorial.fbd.FunctionBlockDiagramBendpoint;
 
 public class AddFunctionBlockDiagramConnectionFeature extends AbstractAddFeature implements IAddFeature {
 
@@ -34,7 +37,8 @@ public class AddFunctionBlockDiagramConnectionFeature extends AbstractAddFeature
 		IPeCreateService peCreateService = Graphiti.getPeCreateService();
 		IGaService gaService = Graphiti.getGaService();
 
-		Connection connection = peCreateService.createFreeFormConnection(getDiagram());
+		FreeFormConnection connection =
+				peCreateService.createFreeFormConnection(getDiagram());
 		connection.setStart(addConContext.getSourceAnchor());
 		connection.setEnd(addConContext.getTargetAnchor());
 
@@ -44,15 +48,30 @@ public class AddFunctionBlockDiagramConnectionFeature extends AbstractAddFeature
 
 		// add static graphical decorator (composition and navigable)
 		ConnectionDecorator cd;
-		cd = peCreateService.createConnectionDecorator(connection, false, 1.0, true);
+		cd = peCreateService.createConnectionDecorator(
+				connection, false, 1.0, true);
 		createArrow(cd);
 
+		Object object = getFeatureProvider().
+			getBusinessObjectForPictogramElement(
+					addConContext.getTargetAnchor());
+		if (object instanceof AbstractWritableConnectionPoint) {
+			AbstractWritableConnectionPoint connectionPoint =
+					(AbstractWritableConnectionPoint) object;
+			for (FunctionBlockDiagramBendpoint point :
+				connectionPoint.getLinkBendpoints()) {
+				connection.getBendpoints().add(gaService.createPoint(
+						point.getX(), point.getY()));
+			}
+			
+		}
 		return connection;
 	}
 
 	private Polygon createArrow(GraphicsAlgorithmContainer gaContainer) {
 		IGaService gaService = Graphiti.getGaService();
-		Polygon polyline = gaService.createPolygon(gaContainer, new int[] { -20, 10, 0, 0, -20, -10, -20, 10 });
+		Polygon polyline = gaService.createPolygon(gaContainer,
+				new int[] { -20, 10, 0, 0, -20, -10, -20, 10 });
 		polyline.setForeground(manageColor(IColorConstant.BLACK));
 		polyline.setBackground(manageColor(IColorConstant.BLACK));
 		return polyline;

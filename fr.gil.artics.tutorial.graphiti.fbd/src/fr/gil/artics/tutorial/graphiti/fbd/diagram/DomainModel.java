@@ -180,7 +180,16 @@ public class DomainModel {
 		if (contents.size() == 1) {
 			EObject object = contents.get(0);
 			if (object instanceof FunctionBlockDiagram) {
-				return (FunctionBlockDiagram) object;
+				FunctionBlockDiagram diagram = (FunctionBlockDiagram) object;
+				if (diagram.getName() == null) {
+					diagram.setName("");
+				}
+				if (diagram.getName().length() == 0) {
+					diagram.setName(
+						file.getLocation().removeFileExtension().lastSegment());
+				}
+				
+				return diagram;
 			}
 		}
 		return null;

@@ -33,17 +33,19 @@ import fr.gil.artics.tutorial.fbd.FunctionBlockDiagramBlockOutput;
 import fr.gil.artics.tutorial.fbd.FunctionBlockDiagramInput;
 import fr.gil.artics.tutorial.fbd.FunctionBlockDiagramOutput;
 import fr.gil.artics.tutorial.graphiti.fbd.features.AddFunctionBlockDiagramBlockFeature;
-import fr.gil.artics.tutorial.graphiti.fbd.features.AddFunctionBlockDiagramBlockInputFeature;
 import fr.gil.artics.tutorial.graphiti.fbd.features.AddFunctionBlockDiagramConnectionFeature;
 import fr.gil.artics.tutorial.graphiti.fbd.features.AddFunctionBlockDiagramInputFeature;
+import fr.gil.artics.tutorial.graphiti.fbd.features.AddFunctionBlockDiagramOutputFeature;
 import fr.gil.artics.tutorial.graphiti.fbd.features.CreateFunctionBlockDiagramBlockFeature;
 import fr.gil.artics.tutorial.graphiti.fbd.features.DisabledRemoveFeature;
 import fr.gil.artics.tutorial.graphiti.fbd.features.DisabledResizeShapeFeature;
 import fr.gil.artics.tutorial.graphiti.fbd.features.CreateFunctionBlockDiagramConnectionFeature;
 import fr.gil.artics.tutorial.graphiti.fbd.features.CreateFunctionBlockDiagramInputFeature;
+import fr.gil.artics.tutorial.graphiti.fbd.features.CreateFunctionBlockDiagramOutputFeature;
 import fr.gil.artics.tutorial.graphiti.fbd.features.DeleteFunctionBlockDiagramBlockFeature;
 import fr.gil.artics.tutorial.graphiti.fbd.features.DeleteFunctionBlockDiagramConnectionFeature;
 import fr.gil.artics.tutorial.graphiti.fbd.features.DeleteFunctionBlockDiagramInputFeature;
+import fr.gil.artics.tutorial.graphiti.fbd.features.DeleteFunctionBlockDiagramOutputFeature;
 import fr.gil.artics.tutorial.graphiti.fbd.features.DisabledMoveAnchorFeature;
 import fr.gil.artics.tutorial.graphiti.fbd.features.DisabledMoveShapeFeature;
 import fr.gil.artics.tutorial.graphiti.fbd.features.LayoutFunctionBlockDiagramBlockFeature;
@@ -63,7 +65,8 @@ public class FunctionBlockDiagramFeatureProvider extends DefaultFeatureProvider 
 	public ICreateFeature[] getCreateFeatures() {
 		return new ICreateFeature[] {
 				new CreateFunctionBlockDiagramBlockFeature(this),
-				new CreateFunctionBlockDiagramInputFeature(this) };
+				new CreateFunctionBlockDiagramInputFeature(this),
+				new CreateFunctionBlockDiagramOutputFeature(this)};
 	}
 
 	@Override
@@ -82,10 +85,10 @@ public class FunctionBlockDiagramFeatureProvider extends DefaultFeatureProvider 
 
 			if (newObject instanceof FunctionBlockDiagramBlock) {
 				return new AddFunctionBlockDiagramBlockFeature(this);
-			} else if (newObject instanceof FunctionBlockDiagramBlockInput) {
-				return new AddFunctionBlockDiagramBlockInputFeature(this);
 			} else if (newObject instanceof FunctionBlockDiagramInput) {
 				return new AddFunctionBlockDiagramInputFeature(this);
+			} else if (newObject instanceof FunctionBlockDiagramOutput) {
+				return new AddFunctionBlockDiagramOutputFeature(this);
 			}
 		}
 		return super.getAddFeature(context);
@@ -129,7 +132,9 @@ public class FunctionBlockDiagramFeatureProvider extends DefaultFeatureProvider 
 			IResizeShapeContext context) {
 		Shape shape = context.getShape();
 		Object businessObject = getBusinessObjectForPictogramElement(shape);
-		if (businessObject instanceof FunctionBlockDiagramBlockInput) {
+		if (businessObject instanceof FunctionBlockDiagramBlock) {
+			return new DisabledResizeShapeFeature(this);
+		} else if (businessObject instanceof FunctionBlockDiagramBlockInput) {
 			return new DisabledResizeShapeFeature(this);
 		} else if (businessObject instanceof FunctionBlockDiagramBlockOutput) {
 			return new DisabledResizeShapeFeature(this);
@@ -177,6 +182,8 @@ public class FunctionBlockDiagramFeatureProvider extends DefaultFeatureProvider 
 			return new DeleteFunctionBlockDiagramBlockFeature(this);
 		} else if (businessObject instanceof FunctionBlockDiagramInput) {
 			return new DeleteFunctionBlockDiagramInputFeature(this);
+		} else if (businessObject instanceof FunctionBlockDiagramOutput) {
+			return new DeleteFunctionBlockDiagramOutputFeature(this);
 		}
 		return super.getDeleteFeature(context);
 	}

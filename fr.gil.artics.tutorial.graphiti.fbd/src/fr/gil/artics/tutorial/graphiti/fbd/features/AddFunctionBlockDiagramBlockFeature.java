@@ -116,8 +116,6 @@ public class AddFunctionBlockDiagramBlockFeature extends AbstractAddShapeFeature
 		text.setForeground(manageColor(BLOCK_TEXT_FOREGROUND));
 		text.setHorizontalAlignment(Orientation.ALIGNMENT_CENTER);
 		text.setFont(gaService.manageDefaultFont(getDiagram(), false, true));
-		 System.out.println("text:"+text.getValue()+" "+text.getWidth()+
-		 +GraphitiUi.getUiLayoutService().calculateTextSize(text).getWidth());
 
 		gaService.setLocationAndSize(text,  ANCHOR_SIZE/2, 0,
 				width - ANCHOR_SIZE, getTextHeight(text, null));
